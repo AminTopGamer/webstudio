@@ -39,7 +39,7 @@ export const RequestParams = z.object({
 
 // Override Vercel's default serverless functions timeout.
 export const config = {
-  maxDuration: 180, // seconds
+  maxDuration: 60, // seconds
 };
 
 export const action = async ({ request }: ActionFunctionArgs) => {
