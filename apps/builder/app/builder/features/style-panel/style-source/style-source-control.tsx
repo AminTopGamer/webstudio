@@ -318,7 +318,6 @@ export const StyleSourceControl = ({
         disabled={disabled}
         aria-current={selected && state === undefined}
         role="button"
-        onClick={onSelect}
         hasError={error !== undefined}
       >
         <Flex grow css={{ padding: theme.spacing[2] }}>
@@ -326,24 +325,29 @@ export const StyleSourceControl = ({
             disabled={disabled || isEditing}
             isEditing={isEditing}
             tabIndex={-1}
+            onClick={onSelect}
           >
-            <Flex align="center" justify="center" gap="1">
-              {source === "local" ? (
+            {source === "local" ? (
+              <Flex justify="center" align="center">
+                <Box
+                  // We need this so that the small local button has a bigger clickable surface
+                  css={{ position: "absolute", inset: 0 }}
+                />
                 <LocalStyleIcon showDot={hasStyles} />
-              ) : (
-                <>
-                  <EditableText
-                    isEditing={isEditing}
-                    onChangeEditing={onChangeEditing}
-                    onChangeValue={onChangeValue}
-                    value={label}
-                  />
-                  {hasStyles === false && isEditing === false && (
-                    <LocalStyleIcon showDot={hasStyles} />
-                  )}
-                </>
-              )}
-            </Flex>
+              </Flex>
+            ) : (
+              <Flex align="center" justify="center" gap="1">
+                <EditableText
+                  isEditing={isEditing}
+                  onChangeEditing={onChangeEditing}
+                  onChangeValue={onChangeValue}
+                  value={label}
+                />
+                {hasStyles === false && isEditing === false && (
+                  <LocalStyleIcon showDot={hasStyles} />
+                )}
+              </Flex>
+            )}
           </StyleSourceButton>
         </Flex>
         {stateLabel !== undefined && (

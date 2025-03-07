@@ -2,8 +2,8 @@ import { useMemo, type ComponentProps, type JSX } from "react";
 import type { RgbaColor } from "colord";
 import {
   toValue,
+  type CssProperty,
   type LayersValue,
-  type StyleProperty,
   type StyleValue,
   type TupleValue,
   type UnparsedValue,
@@ -24,7 +24,11 @@ import { repeatUntil } from "~/shared/array-utils";
 import type { ComputedStyleDecl } from "~/shared/style-object-model";
 import { createBatchUpdate, type StyleUpdateOptions } from "./use-style-data";
 import { ColorThumb } from "./color-thumb";
-import { parseCssValue, properties } from "@webstudio-is/css-data";
+import {
+  camelCaseProperty,
+  parseCssValue,
+  properties,
+} from "@webstudio-is/css-data";
 
 const isRepeatedValue = (
   styleValue: StyleValue
@@ -32,7 +36,7 @@ const isRepeatedValue = (
   styleValue.type === "layers" || styleValue.type === "tuple";
 
 const reparseComputedValue = (styleDecl: ComputedStyleDecl) => {
-  const property = styleDecl.property as StyleProperty;
+  const property = styleDecl.property;
   const serialized = toValue(styleDecl.computedValue);
   return parseCssValue(property, serialized);
 };
@@ -71,7 +75,7 @@ const isItemHidden = (styleValue: StyleValue, index: number) => {
  */
 const getComputedValue = (styleDecl: ComputedStyleDecl) => {
   if (styleDecl.cascadedValue.type === "var") {
-    const property = styleDecl.property as StyleProperty;
+    const property = styleDecl.property;
     const serialized = toValue(styleDecl.computedValue);
     return parseCssValue(property, serialized);
   }
@@ -112,7 +116,7 @@ const normalizeStyleValue = (
 
 export const addRepeatedStyleItem = (
   styles: ComputedStyleDecl[],
-  newItems: Map<StyleProperty, StyleValue>
+  newItems: Map<CssProperty, StyleValue>
 ) => {
   if (styles[0].cascadedValue.type === "var") {
     const primaryValue = reparseComputedValue(styles[0]);
@@ -133,7 +137,8 @@ export const addRepeatedStyleItem = (
   if (primaryValue.type === "var") {
     primaryCount = 1;
   }
-  for (const [property, newValue] of newItems) {
+  for (const [hyphenatedProperty, newValue] of newItems) {
+    const property = camelCaseProperty(hyphenatedProperty);
     if (newValue.type !== "layers" && newValue.type !== "tuple") {
       continue;
     }
@@ -164,14 +169,15 @@ export const addRepeatedStyleItem = (
 export const editRepeatedStyleItem = (
   styles: ComputedStyleDecl[],
   index: number,
-  newItems: Map<StyleProperty, StyleValue>,
+  newItems: Map<CssProperty, StyleValue>,
   options?: StyleUpdateOptions
 ) => {
   const batch = createBatchUpdate();
   const currentStyles = new Map(
     styles.map((styleDecl) => [styleDecl.property, styleDecl])
   );
-  for (const [property, value] of newItems) {
+  for (const [hyphenatedProperty, value] of newItems) {
+    const property = camelCaseProperty(hyphenatedProperty);
     const styleDecl = currentStyles.get(property);
     if (styleDecl === undefined) {
       continue;
@@ -226,7 +232,7 @@ export const setRepeatedStyleItem = (
   const newItems: StyleValue[] = repeatUntil(oldItems, index);
   // unpack item when layers or tuple is provided
   newItems[index] = newItem.type === valueType ? newItem.value[0] : newItem;
-  batch.setProperty(styleDecl.property as StyleProperty)({
+  batch.setProperty(styleDecl.property)({
     type: valueType,
     value: newItems as UnparsedValue[],
   });
@@ -243,7 +249,7 @@ export const deleteRepeatedStyleItem = (
     ? primaryValue.value.length
     : index + 1;
   for (const styleDecl of styles) {
-    const property = styleDecl.property as StyleProperty;
+    const property = styleDecl.property;
     const newValue = structuredClone(styleDecl.cascadedValue);
     if (isRepeatedValue(newValue)) {
       newValue.value = repeatUntil(newValue.value, primaryCount);
@@ -274,7 +280,7 @@ export const toggleRepeatedStyleItem = (
     : index + 1;
   const isHidden = isItemHidden(primaryValue, index);
   for (const styleDecl of styles) {
-    const property = styleDecl.property as StyleProperty;
+    const property = styleDecl.property;
     const newValue = structuredClone(styleDecl.cascadedValue);
     if (newValue.type === "var") {
       newValue.hidden = !isHidden;
@@ -313,7 +319,7 @@ export const swapRepeatedStyleItems = (
       newValue.value.splice(oldIndex, 1);
       newValue.value.splice(newIndex, 0, oldItem);
     }
-    batch.setProperty(styleDecl.property as StyleProperty)(newValue);
+    batch.setProperty(styleDecl.property)(newValue);
   }
   batch.publish();
 };

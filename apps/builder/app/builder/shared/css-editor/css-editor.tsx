@@ -63,9 +63,11 @@ const AdvancedPropertyLabel = ({
   onDeleteProperty: DeleteProperty;
 }) => {
   const styleDecl = useComputedStyleDecl(property);
-  const description = propertyDescriptions[camelCaseProperty(property)];
-
   const [isOpen, setIsOpen] = useState(false);
+
+  const description = propertyDescriptions[camelCaseProperty(property)];
+  const styleConfig = styleConfigByName(property);
+
   return (
     <Tooltip
       open={isOpen}
@@ -94,6 +96,7 @@ const AdvancedPropertyLabel = ({
             onReset?.();
           }}
           resetType="delete"
+          link={styleConfig?.mdnUrl}
         />
       }
     >
@@ -316,6 +319,7 @@ export const CssEditor = ({
   apiRef,
   showSearch = true,
   recentProperties = [],
+  memorizeMinHeight = true,
 }: {
   onDeleteProperty: DeleteProperty;
   onSetProperty: SetProperty;
@@ -324,6 +328,9 @@ export const CssEditor = ({
   styleMap: CssStyleMap;
   apiRef?: RefObject<CssEditorApi>;
   showSearch?: boolean;
+  // When used as part of some larger scroll area to avoid scroll jumps during search.
+  // For example advanced section in the style panel.
+  memorizeMinHeight?: boolean;
   recentProperties?: Array<CssProperty>;
 }) => {
   const [isAdding, setIsAdding] = useState(false);
@@ -350,10 +357,6 @@ export const CssEditor = ({
 
   const showRecentProperties =
     recentProperties.length > 0 && searchProperties === undefined;
-
-  const memorizeMinHeight = () => {
-    setMinHeight(containerRef.current?.getBoundingClientRect().height ?? 0);
-  };
 
   const handleInsertStyles = (cssText: string) => {
     const styleMap = parseStyleInput(cssText);
@@ -383,7 +386,9 @@ export const CssEditor = ({
       return handleAbortSearch();
     }
 
-    memorizeMinHeight();
+    if (memorizeMinHeight) {
+      setMinHeight(containerRef.current?.getBoundingClientRect().height ?? 0);
+    }
 
     const styles = [];
     for (const [property, value] of styleMap) {
