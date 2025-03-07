@@ -3,7 +3,7 @@ name: Vercel Deploy Staging
 on:
   push:
 
-# cancel in-progress runs on new commits to same PR (gitub.event.number)
+# cancel in-progress runs on new commits to same PR (github.event.number)
 concurrency:
   group: vercel-deploy-${{ github.workflow }}-${{ github.sha }}
   cancel-in-progress: true
@@ -15,8 +15,6 @@ permissions:
 
 jobs:
   deployment:
-    # Execute development and staging on staging branches
-    # Execute only development on all other branches
     strategy:
       matrix:
         environment:
@@ -40,6 +38,9 @@ jobs:
         with:
           ref: ${{ github.sha }}
 
+      - name: Remove .vercel Directory
+        run: rm -rf /home/runner/work/webstudio/webstudio/.vercel
+
       - uses: ./.github/actions/submodules-checkout
         with:
           submodules-ssh-key: ${{ secrets.PRIVATE_GITHUB_DEPLOY_TOKEN }}
@@ -56,7 +57,7 @@ jobs:
         name: Deploy to Vercel
         with:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-team-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-team-id: ${{ secrets.VERCEL_TEAM_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
           ref-name: ${{ github.ref_name }}
           sha: ${{ github.sha }}
@@ -92,8 +93,6 @@ jobs:
       builder-host: ${{ needs.deployment.outputs.builder-host }}
       environment: development
     secrets:
-      # We are not passing the secret here (as it does not exist in the current environment).
-      # Instead, this serves as a signal to the calling workflow that it has permission to extract it from the environment.
       PRIVATE_GITHUB_DEPLOY_TOKEN: ${{ secrets.PRIVATE_GITHUB_DEPLOY_TOKEN }}
 
   delete-github-deployments:
