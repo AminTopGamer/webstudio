@@ -78,11 +78,11 @@ jobs:
         with:
           title: "⭐ [${{ matrix.environment }}] Apps Webstudio URL"
           description: "[${{ matrix.environment }}] Site url"
-          url: "https://${{ steps.vercel.outputs.alias }}.${{ matrix.environment }}.webstudio.is"
+          url: "https://${{ steps.vercel.outputs.alias }}.${{ matrix.environment }}.vercel.app"
 
     outputs:
-      builder-url: "https://${{ steps.vercel.outputs.alias }}.${{ matrix.environment }}.webstudio.is"
-      builder-host: "${{ steps.vercel.outputs.alias }}.${{ matrix.environment }}.webstudio.is"
+      builder-url: "https://${{ steps.vercel.outputs.alias }}.${{ matrix.environment }}.vercel.app"
+      builder-host: "${{ steps.vercel.outputs.alias }}.${{ matrix.environment }}.vercel.app"
 
   fixtures-test:
     needs: deployment
