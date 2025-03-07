@@ -120,7 +120,7 @@ runs:
 
         pnpx vercel alias set \
         "${{ steps.deploy.outputs.domain }}" \
-        "${ALIAS}-wstd-00-${{ inputs.environment }}" \
+        "${ALIAS}-notwstd-00-${{ inputs.environment }}" \
         --token ${{ inputs.vercel-token }} \
         --scope amintopgamers
 
