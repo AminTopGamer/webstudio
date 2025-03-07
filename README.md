@@ -23,7 +23,7 @@
 - [Youtube](https://www.youtube.com/@getwebstudio)
 - [Discord](https://discord.gg/UNdyrDkq5r)
 
-### Thanks
+## Thanks
 
 <a href="https://www.lost-pixel.com/"><img src="https://user-images.githubusercontent.com/29632358/168112844-77e76a0d-b96f-4bc8-b753-cd39f4afd428.png" width="50" height="50" alt="Lost Pixel" /></a>
 
