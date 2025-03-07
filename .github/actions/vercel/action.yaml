@@ -118,7 +118,6 @@ runs:
 
         echo "domain=$(cat ./domain.txt)" >> $GITHUB_OUTPUT
         echo "inspect-url=$(cat info.txt | grep 'Inspect:' | awk '{print $2}')" >> $GITHUB_OUTPUT
-
       shell: bash
 
     - name: Set Alias
