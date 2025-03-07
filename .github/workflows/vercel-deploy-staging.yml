@@ -3,7 +3,7 @@ name: Vercel Deploy Staging
 on:
   push:
 
-# cancel in-progress runs on new commits to same PR (github.event.number)
+# cancel in-progress runs on new commits to same PR (gitub.event.number)
 concurrency:
   group: vercel-deploy-${{ github.workflow }}-${{ github.sha }}
   cancel-in-progress: true
@@ -15,6 +15,8 @@ permissions:
 
 jobs:
   deployment:
+    # Execute development and staging on staging branches
+    # Execute only development on all other branches
     strategy:
       matrix:
         environment:
@@ -38,9 +40,6 @@ jobs:
         with:
           ref: ${{ github.sha }}
 
-      - name: Remove .vercel Directory
-        run: rm -rf /home/runner/work/webstudio/webstudio/.vercel
-
       - uses: ./.github/actions/submodules-checkout
         with:
           submodules-ssh-key: ${{ secrets.PRIVATE_GITHUB_DEPLOY_TOKEN }}
@@ -57,7 +56,7 @@ jobs:
         name: Deploy to Vercel
         with:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-team-id: ${{ secrets.VERCEL_TEAM_ID }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
           ref-name: ${{ github.ref_name }}
           sha: ${{ github.sha }}
@@ -75,15 +74,15 @@ jobs:
           description: "[${{ matrix.environment }}] Vercel logs"
           url: "${{ steps.vercel.outputs.inspect-url }}"
 
-    #   - uses: ./.github/actions/add-status
-    #     with:
-    #       title: "⭐ [${{ matrix.environment }}] Apps Webstudio URL"
-    #       description: "[${{ matrix.environment }}] Site url"
-    #       url: "https://${{ steps.vercel.outputs.alias }}.${{ matrix.environment }}.webstudio.is"
+      - uses: ./.github/actions/add-status
+        with:
+          title: "⭐ [${{ matrix.environment }}] Apps URL"
+          description: "[${{ matrix.environment }}] Site URL"
+          url: "https://${{ steps.vercel.outputs.alias }}.${{ matrix.environment }}.vercel.app"
 
-    # outputs:
-    #   builder-url: "https://${{ steps.vercel.outputs.alias }}.${{ matrix.environment }}.webstudio.is"
-    #   builder-host: "${{ steps.vercel.outputs.alias }}.${{ matrix.environment }}.webstudio.is"
+    outputs:
+      builder-url: "https://${{ steps.vercel.outputs.alias }}.${{ matrix.environment }}.vercel.app"
+      builder-host: "${{ steps.vercel.outputs.alias }}.${{ matrix.environment }}.vercel.app"
 
   fixtures-test:
     needs: deployment
@@ -93,6 +92,8 @@ jobs:
       builder-host: ${{ needs.deployment.outputs.builder-host }}
       environment: development
     secrets:
+      # We are not passing the secret here (as it does not exist in the current environment).
+      # Instead, this serves as a signal to the calling workflow that it has permission to extract it from the environment.
       PRIVATE_GITHUB_DEPLOY_TOKEN: ${{ secrets.PRIVATE_GITHUB_DEPLOY_TOKEN }}
 
   delete-github-deployments:
