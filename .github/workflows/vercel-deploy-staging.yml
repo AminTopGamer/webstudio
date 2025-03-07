@@ -56,7 +56,7 @@ jobs:
         name: Deploy to Vercel
         with:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-team-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
           ref-name: ${{ github.ref_name }}
           sha: ${{ github.sha }}
