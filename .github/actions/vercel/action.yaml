@@ -1,5 +1,5 @@
 name: "VERCEL BUILD AND DEPLOY"
-description: "Builds and deploy vercel project"
+description: "Builds and deploys vercel project"
 
 inputs:
   vercel-token:
@@ -18,7 +18,7 @@ inputs:
     description: "Sha"
     required: true
   environment:
-    description: "Sha"
+    description: "Environment"
     required: true
 
 outputs:
@@ -88,7 +88,11 @@ runs:
         # Remix and the Vercel adapter lack support for header selection https://github.com/vercel/vercel/blob/9d4d4b6deb6294506016106f78e71f1984adcc7f/packages/remix/defaults/server-node.mjs#L44
         # Patching server-node.mjs directly without installing Vercel CLI was unsuccessful, so we are using string replacement instead.
 
-        mapfile -t matching_files < <(grep -rl "req\.headers\['x-forwarded-host'\] || req\.headers\.host" "./apps/builder/build")
+        mapfile -t matching_files < <(grep -rl "req\.headers
+
+\['x-forwarded-host'\]
+
+ || req\.headers\.host" "./apps/builder/build")
         if [ ${#matching_files[@]} -eq 0 ]; then
           echo "No files found containing the specified string."
           exit 1
@@ -97,7 +101,11 @@ runs:
         echo "Files containing 'req.headers['x-forwarded-host'] || req.headers.host':"
         printf '%s\n' "${matching_files[@]}"
 
-        find ./apps/builder/build -type f -exec sed -i "s/req\.headers\['x-forwarded-host'\] || req\.headers\.host/req.headers['x-forwarded-ws-host'] || req.headers['x-forwarded-host'] || req.headers.host/g" {} +
+        find ./apps/builder/build -type f -exec sed -i "s/req\.headers
+
+\['x-forwarded-host'\]
+
+ || req\.headers\.host/req.headers['x-forwarded-ws-host'] || req.headers['x-forwarded-host'] || req.headers.host/g" {} +
       shell: bash
 
     - name: Deploy
@@ -121,8 +129,7 @@ runs:
         pnpx vercel alias set \
         "${{ steps.deploy.outputs.domain }}" \
         "${ALIAS}-wstd-00-${{ inputs.environment }}" \
-        --token ${{ inputs.vercel-token }} \
-        --scope getwebstudio
+        --token ${{ inputs.vercel-token }}
 
         echo "value=${ALIAS}" >> $GITHUB_OUTPUT
       shell: bash
