@@ -11,6 +11,7 @@
     "build:webflow-presets": "pnpm css-to-ws ./app/shared/copy-paste/plugin-webflow/style-presets.css ./app/shared/copy-paste/plugin-webflow/__generated__/style-presets.ts",
     "start": "remix-serve build/server/index.js",
     "build:http-client": "pnpm --filter=@webstudio-is/http-client build",
+    "migrations": "pnpm --filter=@webstudio-is/prisma-client generate && pnpm --filter=./packages/prisma-client migrations --dev --cwd ../../apps/builder",
     "dev": "pnpm build:http-client && remix vite:dev",
     "dev:auth": "pnpm build:http-client && DEBUG=OAuth2Strategy,ws:* remix vite:dev",
     "typecheck": "tsc --noEmit --emitDeclarationOnly false",
