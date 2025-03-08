@@ -6,6 +6,7 @@ const env = {
   GH_CLIENT_SECRET: process.env.GH_CLIENT_SECRET,
   GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
   GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
+  REDIRECT_URI: process.env.REDIRECT_URI,
 
   // Secret session key, context encode
   AUTH_SECRET: process.env.AUTH_SECRET,
